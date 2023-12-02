@@ -14,6 +14,36 @@ sounds are triggered by placing 3D-printed Among Us figurines (glued to
 coin-size RFID tags) on a cheap (~12 €) USB RFID reader, itself covered
 by a 3D-printed plan of a map from the game.
 
+## Build 
+
+1. Install Rust (e.g. via [rustup](https://rustup.rs/))
+
+2. Install Docker (e.g. via [Docker Desktop](https://www.docker.com/products/docker-desktop))
+
+3. Clone this repository.
+
+4. Install cross-compilation tool 
+   ```
+   cargo install cross --git https://github.com/cross-rs/cross
+   ```
+
+5. Build the program for the target platform.
+   Default target platform will be aarch64-unknown-linux-gnu (e.g. Raspberry Pi 4B or Raspberry Pi Zero 2 W with a 64-bit OS).
+   You can change this in the `Cross.toml` file.
+
+   ```
+   cross build --release
+   ```
+
+   The resulting binary will be located at
+   `target/aarch64-unknown-linux-gnu/release/scanner-soundboard`.
+
+
+   If you want to build for a different target platform, specify it via
+   the `--target` option or set it in `Cross.toml`.
+
+   For more Information see [cross](https://github.com/cross-rs/cross)
+
 
 ## Usage
 
