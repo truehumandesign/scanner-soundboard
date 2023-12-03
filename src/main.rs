@@ -51,6 +51,8 @@ fn main() -> Result<()> {
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
     let sink = Sink::try_new(&stream_handle).unwrap();
 
+    sink.sleep_until_end();
+
     let mut input_device = Device::open(input_device.unwrap())?;
     println!(
         "Opened input device \"{}\".",
