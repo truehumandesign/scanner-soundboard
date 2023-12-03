@@ -25,9 +25,9 @@ pub(crate) fn play_sound(
         }
         let source = load_source(&path)?;
         sink.append(source);
-
+        println!("Playing sound file {}.", path.display());
         loop {
-            std::thread::sleep(Duration::from_millis(50));
+            std::thread::sleep(Duration::from_millis(1500));
             if sink.empty() {
                 break;
             }
