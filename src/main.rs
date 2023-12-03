@@ -5,7 +5,6 @@
 
 use anyhow::Result;
 use evdev::{Device, EventType, InputEventKind, Key};
-use rodio::{OutputStream, Sink};
 use std::path::PathBuf;
 use std::process::exit;
 mod audio;
@@ -48,9 +47,6 @@ fn main() -> Result<()> {
 
     let config = config::load_config(&config_filename)?;
 
-    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-    let sink = Sink::try_new(&stream_handle).unwrap();
-
     let mut input_device = Device::open(input_device.expect("No RFID reader connected"))?;
     println!(
         "Opened input device \"{}\".",
@@ -78,14 +74,12 @@ fn main() -> Result<()> {
                     if let Some(ch) = get_char(key) {
                         read_chars.push(ch)
                     }
-                    println!("Read chars: {}", read_chars);
                     if read_chars.len() == 10 {
                         let input = read_chars.as_str();
                         audio::play_sound(
                             &config.inputs_to_filenames,
                             input,
                             config.sounds_path.as_path(),
-                            &sink,
                         )?;
                         read_chars.clear();
                     }

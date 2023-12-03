@@ -4,19 +4,15 @@
  */
 
 use anyhow::Result;
-use rodio::{Decoder, Sink};
+use execute::Execute;
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::BufReader;
 use std::path::Path;
 use std::process::Command;
-use std::time::Duration;
 
 pub(crate) fn play_sound(
     inputs_to_filenames: &HashMap<String, String>,
     input: &str,
     dir: &Path,
-    sink: &Sink,
 ) -> Result<()> {
     if let Some(filename) = inputs_to_filenames.get(input.trim()) {
         let path = dir.join(filename);
@@ -24,16 +20,18 @@ pub(crate) fn play_sound(
             eprintln!("Sound file {} does not exist.", path.display());
             return Ok(());
         }
-        Command::new("mpg321")
-            .arg("-o alsa")
-            .arg(path)
-            .spawn()?
-            .wait()?;
+        let mut command = Command::new("mpg123");
+        command.arg(path);
+
+        if let Some(exit_code) = command.execute().unwrap() {
+            if exit_code == 0 {
+                println!("Ok.");
+            } else {
+                eprintln!("Failed.");
+            }
+        } else {
+            eprintln!("Interrupted!");
+        }
     }
     Ok(())
-}
-
-fn load_source(path: &Path) -> Result<Decoder<BufReader<File>>> {
-    let file = BufReader::new(File::open(path)?);
-    Ok(Decoder::new(file)?)
 }
