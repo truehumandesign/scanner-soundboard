@@ -27,9 +27,12 @@ fn get_char(key: Key) -> Option<char> {
 }
 
 fn main() -> Result<()> {
-    let config_filename = PathBuf::from("/home/pablo/.config/soundboard/config.toml");
+    let config_file = PathBuf::from(format!(
+        "{}/.config/soundboard/config.toml",
+        std::env::var("HOME").unwrap()
+    ));
 
-    let config = config::load_config(&config_filename)?;
+    let config = config::load_config(&config_file)?;
 
     let mut input_device = evdev::enumerate()
         .find(|(_, device)| device.unique_name() == Some(&config.rfid_unique_name))
