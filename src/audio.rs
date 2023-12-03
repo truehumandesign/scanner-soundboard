@@ -9,6 +9,7 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
+use std::time::Duration;
 
 pub(crate) fn play_sound(
     inputs_to_filenames: &HashMap<String, String>,
@@ -25,8 +26,8 @@ pub(crate) fn play_sound(
         let source = load_source(&path)?;
         sink.append(source);
 
-        while true {
-            std::thread::sleep(duration::Duration::from_millis(50));
+        loop {
+            std::thread::sleep(Duration::from_millis(50));
             if sink.empty() {
                 break;
             }
