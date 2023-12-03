@@ -24,7 +24,11 @@ pub(crate) fn play_sound(
             eprintln!("Sound file {} does not exist.", path.display());
             return Ok(());
         }
-        Command::new("mpg321").arg(path).spawn()?.wait()?;
+        Command::new("mpg321")
+            .arg("-o alsa")
+            .arg(path)
+            .spawn()?
+            .wait()?;
     }
     Ok(())
 }
