@@ -40,7 +40,7 @@ fn main() -> Result<()> {
             input_device = Some(path);
             break;
         } else {
-            panic!("No RFID reader connected!");
+            continue;
         }
     }
 
