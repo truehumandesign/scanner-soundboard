@@ -51,7 +51,7 @@ fn main() -> Result<()> {
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
     let sink = Sink::try_new(&stream_handle).unwrap();
 
-    let mut input_device = Device::open(input_device.unwrap())?;
+    let mut input_device = Device::open(input_device.expect("No RFID reader connected"))?;
     println!(
         "Opened input device \"{}\".",
         input_device.name().unwrap_or("unnamed device")
