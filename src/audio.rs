@@ -9,6 +9,7 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
+use std::process::Command;
 use std::time::Duration;
 
 pub(crate) fn play_sound(
@@ -23,15 +24,7 @@ pub(crate) fn play_sound(
             eprintln!("Sound file {} does not exist.", path.display());
             return Ok(());
         }
-        let source = load_source(&path)?;
-        sink.append(source);
-        println!("Playing sound file {}.", path.display());
-        loop {
-            std::thread::sleep(Duration::from_millis(1500));
-            if sink.empty() {
-                break;
-            }
-        }
+        Command::new("mpg123").arg(path).spawn()?.wait();
     }
     Ok(())
 }
