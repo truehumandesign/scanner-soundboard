@@ -24,7 +24,7 @@ pub(crate) fn play_sound(
             eprintln!("Sound file {} does not exist.", path.display());
             return Ok(());
         }
-        Command::new("mpg123").arg(path).spawn()?.wait();
+        Command::new("mpg321").arg(path).spawn()?.wait();
     }
     Ok(())
 }
