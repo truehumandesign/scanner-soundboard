@@ -5,17 +5,13 @@
 
 use anyhow::Result;
 use execute::Execute;
-use std::collections::HashMap;
-use std::path::Path;
 use std::process::Command;
 
-pub(crate) fn play_sound(
-    inputs_to_filenames: &HashMap<String, String>,
-    input: &str,
-    dir: &Path,
-) -> Result<()> {
-    if let Some(filename) = inputs_to_filenames.get(input.trim()) {
-        let path = dir.join(filename);
+use crate::config::Config;
+
+pub(crate) fn play_sound(config: &Config, identifier: &str) -> Result<()> {
+    if let Some(filename) = config.inputs_to_filenames.get(identifier.trim()) {
+        let path = config.sounds_path.join(filename);
         if !&path.exists() {
             eprintln!("Sound file {} does not exist.", path.display());
             return Ok(());

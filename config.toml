@@ -1,4 +1,5 @@
 sounds_path = "/home/pablo/music"
+rfid_unique_name = "08FF20140315"
 
 [inputs_to_filenames]
 "0286331153" = "gotmewrong.mp3"

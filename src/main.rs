@@ -4,7 +4,7 @@
  */
 
 use anyhow::Result;
-use evdev::{Device, EventType, InputEventKind, Key};
+use evdev::{EventType, InputEventKind, Key};
 use std::path::PathBuf;
 use std::process::exit;
 mod audio;
@@ -27,27 +27,20 @@ fn get_char(key: Key) -> Option<char> {
 }
 
 fn main() -> Result<()> {
-    let mut input_device = None;
-
-    for (path, device) in evdev::enumerate() {
-        println!(
-            "Path: {} - Unique Name: {:?}",
-            path.display(),
-            device.unique_name()
-        );
-        if device.unique_name() == Some("08FF20140315") {
-            input_device = Some(path);
-            break;
-        } else {
-            continue;
-        }
-    }
-
     let config_filename = PathBuf::from("/home/pablo/.config/soundboard/config.toml");
 
     let config = config::load_config(&config_filename)?;
 
-    let mut input_device = Device::open(input_device.expect("No RFID reader connected"))?;
+    let mut input_device = evdev::enumerate()
+        .find(|(_, device)| device.unique_name() == Some(&config.rfid_unique_name))
+        .unwrap_or_else(|| {
+            panic!(
+                "RFID reader with unique name {} not found",
+                config.rfid_unique_name
+            )
+        })
+        .1;
+
     println!(
         "Opened input device \"{}\".",
         input_device.name().unwrap_or("unnamed device")
@@ -64,27 +57,20 @@ fn main() -> Result<()> {
     let mut read_chars = String::new();
     loop {
         for event in input_device.fetch_events()? {
-            // Only handle pressed key events.
+            // Only released key events.
             if event.event_type() != EventType::KEY || event.value() == 1 {
                 continue;
             }
 
-            match event.kind() {
-                InputEventKind::Key(key) => {
-                    if let Some(ch) = get_char(key) {
-                        read_chars.push(ch)
-                    }
-                    if read_chars.len() == 10 {
-                        let input = read_chars.as_str();
-                        audio::play_sound(
-                            &config.inputs_to_filenames,
-                            input,
-                            config.sounds_path.as_path(),
-                        )?;
-                        read_chars.clear();
-                    }
+            if let InputEventKind::Key(key) = event.kind() {
+                if let Some(ch) = get_char(key) {
+                    read_chars.push(ch)
                 }
-                _ => (),
+                if read_chars.len() == 10 {
+                    let identifier = read_chars.as_str();
+                    audio::play_sound(&config, identifier)?;
+                    read_chars.clear();
+                }
             }
         }
     }

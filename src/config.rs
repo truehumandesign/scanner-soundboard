@@ -12,6 +12,7 @@ use std::path::{Path, PathBuf};
 #[derive(Deserialize)]
 pub(crate) struct Config {
     pub sounds_path: PathBuf,
+    pub rfid_unique_name: String,
     pub inputs_to_filenames: HashMap<String, String>,
 }
 
