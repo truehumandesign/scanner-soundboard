@@ -24,6 +24,13 @@ pub(crate) fn play_sound(
         }
         let source = load_source(&path)?;
         sink.append(source);
+
+        while true {
+            std::thread::sleep(duration::Duration::from_millis(50));
+            if sink.empty() {
+                break;
+            }
+        }
     }
     Ok(())
 }
