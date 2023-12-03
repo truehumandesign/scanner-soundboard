@@ -8,7 +8,6 @@ use evdev::{Device, EventType, InputEventKind, Key};
 use rodio::{OutputStream, Sink};
 use std::process::exit;
 mod audio;
-mod cli;
 mod config;
 
 fn get_char(key: Key) -> Option<char> {
@@ -28,14 +27,28 @@ fn get_char(key: Key) -> Option<char> {
 }
 
 fn main() -> Result<()> {
-    let args = cli::parse_args();
+    let mut input_device = None;
 
-    let config = config::load_config(&args.config_filename)?;
+    for (path, device) in evdev::enumerate() {
+        println!(
+            "Path: {} - Unique Name: {:?}",
+            path.display(),
+            device.unique_name()
+        );
+        if device.unique_name() == Some("08FF20140315") {
+            input_device = Some(path);
+            break;
+        } else {
+            panic!("No RFID reader connected!");
+        }
+    }
+
+    let config_filename = PathBuf::from("/home/pablo/.config/soundboard/config.toml");
+
+    let config = config::load_config(&config_filename)?;
 
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
     let sink = Sink::try_new(&stream_handle).unwrap();
-
-    sink.sleep_until_end();
 
     let mut input_device = Device::open(&args.input_device)?;
     println!(
@@ -60,19 +73,20 @@ fn main() -> Result<()> {
             }
 
             match event.kind() {
-                InputEventKind::Key(Key::KEY_ENTER) => {
-                    let input = read_chars.as_str();
-                    audio::play_sound(
-                        &config.inputs_to_filenames,
-                        input,
-                        config.sounds_path.as_path(),
-                        &sink,
-                    )?;
-                    read_chars.clear();
-                }
                 InputEventKind::Key(key) => {
                     if let Some(ch) = get_char(key) {
                         read_chars.push(ch)
+                    }
+                    println!("Read chars: {}", read_chars);
+                    if read_chars.len() == 10 {
+                        let input = read_chars.as_str();
+                        audio::play_sound(
+                            &config.inputs_to_filenames,
+                            input,
+                            config.sounds_path.as_path(),
+                            &sink,
+                        )?;
+                        read_chars.clear();
                     }
                 }
                 _ => (),

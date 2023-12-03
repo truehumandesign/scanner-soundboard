@@ -1,7 +1,7 @@
 [build]
-default-target = "arm-unknown-linux-gnueabi"
+default-target = "arm-unknown-linux-gnueabihf"
 
-[target.arm-unknown-linux-gnueabi]
+[target.arm-unknown-linux-gnueabihf]
 pre-build = [
-    "dpkg --add-architecture armhf && apt-get update && apt-get install --assume-yes libasound2-dev:armhf",
+    "dpkg --add-architecture armhf && apt-get update && apt-get install --assume-yes libasound2-dev:armhf --no-install-recommends",
 ]

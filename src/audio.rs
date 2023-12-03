@@ -24,6 +24,7 @@ pub(crate) fn play_sound(
         }
         let source = load_source(&path)?;
         sink.append(source);
+        sink.sleep_until_end();
     }
     Ok(())
 }
